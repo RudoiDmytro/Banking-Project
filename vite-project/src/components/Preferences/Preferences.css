@@ -6,8 +6,8 @@
   display: flex;
   justify-content: center;
   flex-direction: column;
-  width: 300px;
-  height: 300px;
+  width: 400px;
+  height: 500px;
   border-radius: 25px;
 }
 
@@ -56,11 +56,12 @@
   position: absolute;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: baseline;
+  justify-content: space-evenly;
+  text-align: start;
+  align-items: start;
   box-sizing: border-box;
-  padding-left: 25%;
   border-radius: 4px;
+  padding: 5%;
   margin: 5%;
   color: antiquewhite;
   background-color: darkslateblue;

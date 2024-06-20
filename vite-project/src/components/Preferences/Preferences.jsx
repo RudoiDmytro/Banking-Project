@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import "./Preferences.css";
-import generator from "creditcard-generator";
-import Button from "@mui/material/Button";
 
 export default function Preferences() {
   const [currency, setCurrency] = useState({
@@ -9,7 +7,6 @@ export default function Preferences() {
     currency: {},
     txt: " ",
   });
-  const [cards, setCards] = useState([]);
 
   async function getExchange() {
     return fetch(
@@ -19,25 +16,32 @@ export default function Preferences() {
         return data.json();
       })
       .then(function (myJson) {
-        let currency = [25, 32, 1, 4, 22, 24];
-        let cur = ["USD", "EUR", "CAD", "CZK", "CHF", "GBP"];
+        let cur = ["USD", "EUR", "CAD", "CZK", "CHF", "GBP"].sort((a, b) =>
+          a.localeCompare(b)
+        );
         let arr = {};
-        for (let i = 0; i < currency.length; i++) {
-          arr[cur[i]] = myJson[currency[i]].rate.toFixed(2);
+        let arr2 = {};
+        const json = myJson
+          .filter((item) => cur.includes(item.cc))
+          .sort((a, b) => a.cc.localeCompare(b.cc));
+
+        for (let i = 0; i < cur.length; i++) {
+          arr[cur[i]] = json[i].rate.toFixed(2);
+          arr2[i] = json[i].txt;
         }
+
         setCurrency({
           date: myJson[0].exchangedate,
           currency: arr,
+          txt: arr2,
         });
       });
   }
-  function getCards() {
-    const card = generator.GenCC("VISA", 1);
-    setCards([...cards, card]);
-  }
+
   useEffect(() => {
     getExchange();
   }, []);
+  
   return (
     <>
       <div className="container">
@@ -46,25 +50,12 @@ export default function Preferences() {
           {Object.keys(currency.currency).map((data, i) => {
             return (
               <div key={data}>
-                {data}: {currency.currency[data]}
+                {currency.txt[i]}: {currency.currency[data]}
               </div>
             );
           })}
         </div>
       </div>
-      <Button
-        color="warning"
-        size="large"
-        variant="contained"
-        onClick={getCards}
-      >
-        Generate
-      </Button>
-      <ul>
-        {Array.from(cards).map((card, i) => {
-          return <li key={i}>{card}</li>;
-        })}
-      </ul>
     </>
   );
 }

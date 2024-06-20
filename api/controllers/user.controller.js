@@ -3,21 +3,23 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
 const pool = new Pool({
-  user: "postgres",
-  password: `Dmytry090302`,
-  host: "localhost",
-  port: "5433",
-  database: "Users",
+  user: process.env.user,
+  password: process.env.password,
+  host: process.env.host,
+  port: process.env.port,
+  database: process.env.db,
 });
 
 class DBController {
   async register(req, res) {
     {
-      const { name, email, phonenumber, password } = req.body;
+      const { username, email, phone, password } = req.body;
+      console.log(username, email, phone, password);
       try {
-        const data = await pool.query(`SELECT * FROM exUser WHERE email= $1;`, [
-          email,
-        ]); //Checking if user already exists
+        const data = await pool.query(
+          `SELECT * FROM public."exUser" WHERE email= $1;`,
+          [email]
+        ); //Checking if user already exists
         const arr = data.rows;
         if (arr.length != 0) {
           return res.status(400).json({
@@ -30,9 +32,9 @@ class DBController {
                 error: "Server error",
               });
             const user = {
-              name,
+              username,
               email,
-              phonenumber,
+              phone,
               password: hash,
             };
             var flag = 1; //Declaring a flag
@@ -40,8 +42,8 @@ class DBController {
             //Inserting data into the database
 
             pool.query(
-              `INSERT INTO exUser (username, email, phone, pass) VALUES ($1,$2,$3,$4);`,
-              [user.name, user.email, user.phonenumber, user.password],
+              `INSERT INTO public."exUser" (username, email, phone, pass) VALUES ($1,$2,$3,$4);`,
+              [user.username, user.email, user.phone, user.password],
               (err) => {
                 if (err) {
                   flag = 0; //If user is not inserted is not inserted to database assigning flag as 0/false.
@@ -79,9 +81,10 @@ class DBController {
   async login(req, res) {
     const { email, password } = req.body;
     try {
-      const data = await pool.query(`SELECT * FROM exUser WHERE email= $1;`, [
-        email,
-      ]); //Verifying if the user exists in the database
+      const data = await pool.query(
+        `SELECT * FROM public."exUser" WHERE email= $1;`,
+        [email]
+      ); //Verifying if the user exists in the database
       const user = data.rows;
       if (user.length === 0) {
         res.status(400).json({
